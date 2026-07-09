@@ -4,10 +4,10 @@ import { useState } from 'react';
 export default function Show({ annonce }) {
     const { auth } = usePage().props;
     const [mainImage, setMainImage] = useState(
-        annonce.images.length > 0 ? annonce.images[0] : null
+        annonce.images?.length > 0 ? annonce.images[0] : null
     );
 
-    const isOwner = auth.user.id === annonce.user_id;
+    const isOwner = auth?.user?.id === annonce.user_id;
 
     return (
         <div className="bg-gray-50 min-h-screen py-8">

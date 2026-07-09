@@ -20,7 +20,7 @@ export default function Create({ categories }) {
 
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Title</label>
+            <label className="block text-sm font-medium text-gray-700">Title *</label>
             <input
               type="text"
               value={data.titre}
@@ -32,7 +32,7 @@ export default function Create({ categories }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Description</label>
+            <label className="block text-sm font-medium text-gray-700">Description *</label>
             <textarea
               value={data.description}
               onChange={(e) => setData('description', e.target.value)}
@@ -44,7 +44,7 @@ export default function Create({ categories }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Price (€)</label>
+            <label className="block text-sm font-medium text-gray-700">Price (€) *</label>
             <input
               type="number"
               step="0.01"
@@ -57,7 +57,7 @@ export default function Create({ categories }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Category</label>
+            <label className="block text-sm font-medium text-gray-700">Category *</label>
             <select
               value={data.category_id}
               onChange={(e) => setData('category_id', e.target.value)}
@@ -65,7 +65,7 @@ export default function Create({ categories }) {
               required
             >
               <option value="">Select a category</option>
-              {categories.map((cat) => (
+              {categories?.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {cat.nom}
                 </option>
