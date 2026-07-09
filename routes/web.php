@@ -34,7 +34,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 require __DIR__.'/auth.php';
 
-// Temporary debug route - create admin user
+// Temporary debug routes
+Route::get('/debug-dashboard', function () {
+    $stats = [
+        ['key' => 'pending', 'value' => \App\Models\Annonce::where('statut', 'active')->count(), 'trend' => '+12%'],
+        ['key' => 'online', 'value' => \App\Models\Annonce::where('statut', 'active')->count(), 'trend' => null],
+        ['key' => 'users', 'value' => \App\Models\User::count(), 'trend' => '+5%'],
+        ['key' => 'reports', 'value' => 0, 'trend' => null],
+    ];
+
+    $recentAnnonces = \App\Models\Annonce::with('category')
+        ->latest()
+        ->limit(10)
+        ->get();
+
+    return [
+        'stats' => $stats,
+        'annonces_count' => $recentAnnonces->count(),
+        'annonces' => $recentAnnonces->toArray(),
+    ];
+});
+
 Route::get('/setup-admin', function () {
     $user = \App\Models\User::firstOrCreate(
         ['email' => 'admin@example.com'],
