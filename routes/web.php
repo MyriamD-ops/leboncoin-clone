@@ -60,6 +60,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     });
 
+    Route::get('/test-create', function () {
+        $categories = \App\Models\Category::all();
+        return Inertia::render('Annonces/Create', [
+            'categories' => $categories,
+        ]);
+    });
+
     Route::get('/debug-admin', function () {
         try {
             $stats = [
