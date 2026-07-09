@@ -1,0 +1,9 @@
+build:
+  - composer install --no-dev --no-interaction --prefer-dist
+  - npm ci
+  - npm run build
+
+deploy:
+  - php artisan migrate --force
+  - php artisan config:cache
+  - php artisan route:cache
