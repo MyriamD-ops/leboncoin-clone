@@ -105,4 +105,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
             ];
         }
     });
+
+    Route::get('/test-create-full', function () {
+        try {
+            $user = auth()->user();
+
+            // Test Policy
+            $policy = new \App\Policies\AnnoncePolicy();
+            $canCreate = $policy->create($user);
+
+            $categories = \App\Models\Category::all();
+
+            return Inertia::render('Annonces/Create', [
+                'categories' => $categories,
+            ]);
+        } catch (\Exception $e) {
+            return [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ];
+        }
+    });
 });
