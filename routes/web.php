@@ -33,3 +33,30 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// Temporary debug route - create admin user
+Route::get('/setup-admin', function () {
+    $user = \App\Models\User::firstOrCreate(
+        ['email' => 'admin@example.com'],
+        [
+            'name' => 'Admin User',
+            'password' => \Illuminate\Support\Facades\Hash::make('password'),
+            'role' => 'admin',
+        ]
+    );
+
+    // Create categories if they don't exist
+    $categories = [
+        ['nom' => 'Électronique', 'slug' => 'electronique'],
+        ['nom' => 'Vêtements', 'slug' => 'vetements'],
+        ['nom' => 'Meubles', 'slug' => 'meubles'],
+        ['nom' => 'Livres', 'slug' => 'livres'],
+        ['nom' => 'Sport', 'slug' => 'sport'],
+    ];
+
+    foreach ($categories as $cat) {
+        \App\Models\Category::firstOrCreate(['slug' => $cat['slug']], $cat);
+    }
+
+    return 'Admin user created: admin@example.com / password';
+});
