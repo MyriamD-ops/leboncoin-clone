@@ -84,3 +84,7 @@ Route::get('/test-inertia-simple', function () {
         ];
     }
 });
+
+Route::get('/test-react', function () {
+    return Inertia::render('Annonces/TestIndex');
+});
