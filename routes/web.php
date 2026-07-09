@@ -68,3 +68,19 @@ Route::get('/test-index', function () {
         ];
     }
 });
+
+Route::get('/test-inertia-simple', function () {
+    try {
+        return Inertia::render('Annonces/Index', [
+            'annonces' => [],
+            'categories' => [],
+            'filters' => ['category_id' => null, 'search' => null],
+        ]);
+    } catch (\Exception $e) {
+        return [
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ];
+    }
+});
