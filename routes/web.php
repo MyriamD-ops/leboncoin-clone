@@ -37,3 +37,34 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::get('/annonces/{annonce}', [AnnonceController::class, 'show'])->name('annonces.show');
 
 require __DIR__.'/auth.php';
+
+// Test route
+Route::get('/test', function () {
+    return 'Server is working';
+});
+
+Route::get('/test-db', function () {
+    try {
+        $count = \App\Models\User::count();
+        return "Database works - Users: {$count}";
+    } catch (\Exception $e) {
+        return "Database error: " . $e->getMessage();
+    }
+});
+
+Route::get('/test-index', function () {
+    try {
+        $annonces = \App\Models\Annonce::where('statut', 'active')->latest()->paginate(12);
+        $categories = \App\Models\Category::all();
+        return [
+            'annonces_count' => $annonces->total(),
+            'categories_count' => $categories->count(),
+        ];
+    } catch (\Exception $e) {
+        return [
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ];
+    }
+});
