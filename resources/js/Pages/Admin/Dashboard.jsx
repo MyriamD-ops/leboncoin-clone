@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { LayoutDashboard, Flag, Grid3x3, Users, Clock, CircleCheck, AlertTriangle, TrendingUp, Bike, Home, Gamepad2 } from "lucide-react";
+import { LayoutDashboard, Flag, Grid3x3, Users, Clock, CircleCheck, AlertTriangle, TrendingUp, Home } from "lucide-react";
 
 const navItems = [
   { label: "Tableau de bord", href: "admin.dashboard", icon: LayoutDashboard, active: true },
@@ -41,7 +41,7 @@ function KpiCard({ statKey, value, trend }) {
   );
 }
 
-const categoryIcons = { velo: Bike, appartement: Home, console: Gamepad2 };
+const categoryIcons = { default: Home };
 
 function StatusBadge({ status }) {
   const styles = {
@@ -108,7 +108,7 @@ export default function AdminDashboard({ stats, recentAnnonces }) {
           </div>
           <div className="flex flex-col">
             {recentAnnonces.map((annonce) => {
-              const Icon = categoryIcons[annonce.category] ?? Home;
+              const Icon = categoryIcons[annonce.category] ?? categoryIcons.default;
               return (
                 <div
                   key={annonce.id}
