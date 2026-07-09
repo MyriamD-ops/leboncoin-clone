@@ -47,6 +47,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ];
     });
 
+    Route::get('/test-inertia', function () {
+        return Inertia::render('Admin/Dashboard', [
+            'stats' => [
+                ['key' => 'test', 'value' => 123, 'trend' => null],
+            ],
+            'recentAnnonces' => [],
+        ]);
+    });
+
     Route::get('/debug-admin', function () {
         try {
             $stats = [
