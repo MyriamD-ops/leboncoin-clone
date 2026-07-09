@@ -35,6 +35,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
 require __DIR__.'/auth.php';
 
 // Temporary debug routes
+Route::get('/debug-user', function () {
+    $user = auth()->user();
+    if (!$user) {
+        return ['error' => 'Not authenticated'];
+    }
+    return [
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+        'role' => $user->role,
+        'is_admin' => $user->role === 'admin',
+    ];
+});
+
 Route::get('/debug-dashboard', function () {
     $stats = [
         ['key' => 'pending', 'value' => \App\Models\Annonce::where('statut', 'active')->count(), 'trend' => '+12%'],
