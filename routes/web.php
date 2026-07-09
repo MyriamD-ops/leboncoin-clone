@@ -67,6 +67,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     });
 
+    Route::post('/test-store', function (\Illuminate\Http\Request $request) {
+        try {
+            $validated = $request->validate([
+                'titre' => 'required|string|max:255',
+                'description' => 'required|string',
+                'prix' => 'required|numeric|min:0',
+                'category_id' => 'required|exists:categories,id',
+            ]);
+
+            $annonce = $request->user()->annonces()->create($validated);
+
+            return redirect()->route('annonces.show', $annonce);
+        } catch (\Exception $e) {
+            return [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ];
+        }
+    });
+
     Route::get('/debug-admin', function () {
         try {
             $stats = [
