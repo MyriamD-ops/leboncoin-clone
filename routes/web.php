@@ -35,18 +35,75 @@ Route::middleware(['auth', 'verified'])->group(function () {
 require __DIR__.'/auth.php';
 
 // Temporary debug routes
-Route::get('/debug-user', function () {
-    $user = auth()->user();
-    if (!$user) {
-        return ['error' => 'Not authenticated'];
-    }
-    return [
-        'id' => $user->id,
-        'name' => $user->name,
-        'email' => $user->email,
-        'role' => $user->role,
-        'is_admin' => $user->role === 'admin',
-    ];
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/debug-user', function () {
+        $user = auth()->user();
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'is_admin' => $user->role === 'admin',
+        ];
+    });
+
+    Route::get('/debug-admin', function () {
+        try {
+            $stats = [
+                [
+                    'key' => 'pending',
+                    'value' => \App\Models\Annonce::where('statut', 'active')->count(),
+                    'trend' => '+12%',
+                ],
+                [
+                    'key' => 'online',
+                    'value' => \App\Models\Annonce::where('statut', 'active')->count(),
+                    'trend' => null,
+                ],
+                [
+                    'key' => 'users',
+                    'value' => \App\Models\User::count(),
+                    'trend' => '+5%',
+                ],
+                [
+                    'key' => 'reports',
+                    'value' => 0,
+                    'trend' => null,
+                ],
+            ];
+
+            $recentAnnonces = \App\Models\Annonce::with('category')
+                ->latest()
+                ->limit(10)
+                ->get()
+                ->map(function ($annonce) {
+                    $categorySlug = 'default';
+                    if ($annonce->category && $annonce->category->slug) {
+                        $categorySlug = $annonce->category->slug;
+                    }
+
+                    return [
+                        'id' => $annonce->id,
+                        'title' => $annonce->titre,
+                        'category' => $categorySlug,
+                        'status' => $annonce->statut === 'active' ? 'en attente' : 'validée',
+                    ];
+                })
+                ->toArray();
+
+            return [
+                'success' => true,
+                'stats' => $stats,
+                'recentAnnonces' => $recentAnnonces,
+            ];
+        } catch (\Exception $e) {
+            return [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ];
+        }
+    });
 });
 
 Route::get('/debug-dashboard', function () {
