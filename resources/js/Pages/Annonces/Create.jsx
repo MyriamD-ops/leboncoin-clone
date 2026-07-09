@@ -10,7 +10,7 @@ export default function Create({ categories }) {
 
   const submit = (e) => {
     e.preventDefault();
-    post(route('test-store'));
+    post('/test-store');
   };
 
   return (
