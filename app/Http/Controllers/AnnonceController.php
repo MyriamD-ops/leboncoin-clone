@@ -9,15 +9,31 @@ use Inertia\Inertia;
 
 class AnnonceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $annonces = Annonce::where('statut', 'active')
-            ->latest()
-            ->paginate(12);
+        $query = Annonce::where('statut', 'active');
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('titre', 'LIKE', "%{$search}%")
+                  ->orWhere('description', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $annonces = $query->latest()->paginate(12);
 
         return Inertia::render('Annonces/Index', [
             'annonces' => $annonces,
             'categories' => Category::all(),
+            'filters' => [
+                'category_id' => $request->category_id,
+                'search' => $request->search,
+            ],
         ]);
     }
 

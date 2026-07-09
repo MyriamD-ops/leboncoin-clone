@@ -1,13 +1,26 @@
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { useState } from 'react';
 
-export default function Index({ annonces, categories }) {
-    const [selectedCategory, setSelectedCategory] = useState(null);
+export default function Index({ annonces, categories, filters }) {
+    const [selectedCategory, setSelectedCategory] = useState(filters.category_id || '');
+    const [searchTerm, setSearchTerm] = useState(filters.search || '');
 
-    const filtered = selectedCategory
-        ? annonces.data.filter(a => a.category_id === parseInt(selectedCategory))
-        : annonces.data;
+    const handleSearch = (e) => {
+        e.preventDefault();
+        router.get(route('annonces.index'), {
+            category_id: selectedCategory || undefined,
+            search: searchTerm || undefined,
+        });
+    };
+
+    const handleCategoryChange = (e) => {
+        setSelectedCategory(e.target.value);
+        router.get(route('annonces.index'), {
+            category_id: e.target.value || undefined,
+            search: searchTerm || undefined,
+        });
+    };
 
     return (
         <>
@@ -20,26 +33,38 @@ export default function Index({ annonces, categories }) {
                         </Link>
                     </div>
 
-                    <div className="mb-6">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Filtrer par catégorie
-                        </label>
-                        <select
-                            value={selectedCategory || ''}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
-                            className="block w-full px-3 py-2 border border-gray-300 rounded-md"
-                        >
-                            <option value="">Toutes les catégories</option>
-                            {categories.map((cat) => (
-                                <option key={cat.id} value={cat.id}>
-                                    {cat.nom}
-                                </option>
-                            ))}
-                        </select>
+                    <div className="mb-6 space-y-4">
+                        <form onSubmit={handleSearch}>
+                            <input
+                                type="text"
+                                placeholder="Chercher par titre ou description..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            />
+                        </form>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Filtrer par catégorie
+                            </label>
+                            <select
+                                value={selectedCategory}
+                                onChange={handleCategoryChange}
+                                className="block w-full px-3 py-2 border border-gray-300 rounded-md"
+                            >
+                                <option value="">Toutes les catégories</option>
+                                {categories.map((cat) => (
+                                    <option key={cat.id} value={cat.id}>
+                                        {cat.nom}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filtered.map((annonce) => (
+                        {annonces.data.map((annonce) => (
                             <Link
                                 key={annonce.id}
                                 href={route('annonces.show', annonce.id)}
@@ -65,9 +90,34 @@ export default function Index({ annonces, categories }) {
                         ))}
                     </div>
 
-                    {filtered.length === 0 && (
+                    {annonces.data.length === 0 && (
                         <div className="text-center py-12">
                             <p className="text-gray-600">Aucune annonce trouvée</p>
+                        </div>
+                    )}
+
+                    {annonces.links && annonces.links.length > 3 && (
+                        <div className="mt-8 flex justify-center gap-2">
+                            {annonces.links.map((link, idx) => (
+                                link.url ? (
+                                    <Link
+                                        key={idx}
+                                        href={link.url}
+                                        className={`px-3 py-2 rounded ${
+                                            link.active
+                                                ? 'bg-blue-600 text-white'
+                                                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                                        }`}
+                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                    />
+                                ) : (
+                                    <span
+                                        key={idx}
+                                        className="px-3 py-2 rounded bg-gray-100 text-gray-500"
+                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                    />
+                                )
+                            ))}
                         </div>
                     )}
                 </div>
