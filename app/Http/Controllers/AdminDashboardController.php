@@ -43,10 +43,15 @@ class AdminDashboardController extends Controller
             ->limit(10)
             ->get()
             ->map(function ($annonce) {
+                $categorySlug = 'default';
+                if ($annonce->category && $annonce->category->slug) {
+                    $categorySlug = $annonce->category->slug;
+                }
+
                 return [
                     'id' => $annonce->id,
                     'title' => $annonce->titre,
-                    'category' => $annonce->category->slug ?? 'default',
+                    'category' => $categorySlug,
                     'status' => $annonce->statut === 'active' ? 'en attente' : 'validée',
                 ];
             })
