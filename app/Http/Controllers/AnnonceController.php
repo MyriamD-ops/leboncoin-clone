@@ -39,9 +39,20 @@ class AnnonceController extends Controller
             'description' => 'required|string',
             'prix' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
+            'images.*' => 'nullable|image|mimes:jpeg,png,webp|max:2048',
         ]);
 
         $annonce = $request->user()->annonces()->create($validated);
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $file) {
+                $path = $file->store('annonces', 'public');
+                $annonce->images()->create([
+                    'url' => $path,
+                    'ordre_affichage' => $index,
+                ]);
+            }
+        }
 
         return redirect()->route('annonces.show', $annonce)->with('success', 'Annonce créée avec succès');
     }
@@ -73,9 +84,21 @@ class AnnonceController extends Controller
             'prix' => 'required|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
             'statut' => 'nullable|in:active,vendue,archivee',
+            'images.*' => 'nullable|image|mimes:jpeg,png,webp|max:2048',
         ]);
 
         $annonce->update($validated);
+
+        if ($request->hasFile('images')) {
+            $nextOrder = $annonce->images()->max('ordre_affichage') + 1 ?? 0;
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('annonces', 'public');
+                $annonce->images()->create([
+                    'url' => $path,
+                    'ordre_affichage' => $nextOrder++,
+                ]);
+            }
+        }
 
         return redirect()->route('annonces.show', $annonce)->with('success', 'Annonce mise à jour avec succès');
     }

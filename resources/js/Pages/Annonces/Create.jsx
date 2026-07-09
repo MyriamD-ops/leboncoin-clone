@@ -4,6 +4,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
+import { useState } from 'react';
 
 export default function Create({ categories }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -11,11 +12,35 @@ export default function Create({ categories }) {
         description: '',
         prix: '',
         category_id: '',
+        images: [],
     });
+    const [imagePreviews, setImagePreviews] = useState([]);
+
+    const handleImageChange = (e) => {
+        const files = Array.from(e.target.files);
+        setData('images', files);
+
+        const previews = files.map(file => URL.createObjectURL(file));
+        setImagePreviews(previews);
+    };
 
     const submit = (e) => {
         e.preventDefault();
-        post(route('annonces.store'));
+
+        const formData = new FormData();
+        formData.append('titre', data.titre);
+        formData.append('description', data.description);
+        formData.append('prix', data.prix);
+        formData.append('category_id', data.category_id);
+
+        data.images.forEach((image) => {
+            formData.append('images[]', image);
+        });
+
+        post(route('annonces.store'), {
+            data: formData,
+            forceFormData: true,
+        });
     };
 
     return (
@@ -89,6 +114,34 @@ export default function Create({ categories }) {
                                         ))}
                                     </select>
                                     <InputError message={errors.category_id} className="mt-2" />
+                                </div>
+
+                                <div>
+                                    <InputLabel htmlFor="images" value="Images" />
+                                    <input
+                                        id="images"
+                                        type="file"
+                                        name="images"
+                                        multiple
+                                        accept="image/jpeg,image/png,image/webp"
+                                        onChange={handleImageChange}
+                                        className="mt-1 block w-full"
+                                    />
+                                    <p className="text-sm text-gray-600 mt-2">JPG, PNG ou WebP. Max 2 Mo par image</p>
+                                    <InputError message={errors.images} className="mt-2" />
+
+                                    {imagePreviews.length > 0 && (
+                                        <div className="mt-4 grid grid-cols-3 gap-4">
+                                            {imagePreviews.map((preview, idx) => (
+                                                <img
+                                                    key={idx}
+                                                    src={preview}
+                                                    alt={`Preview ${idx}`}
+                                                    className="w-full h-24 object-cover rounded border"
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="flex items-center justify-end">
