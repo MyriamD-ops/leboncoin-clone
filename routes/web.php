@@ -10,7 +10,6 @@ use Inertia\Inertia;
 
 Route::get('/', [AnnonceController::class, 'index'])->name('home');
 Route::get('/annonces', [AnnonceController::class, 'index'])->name('annonces.index');
-Route::get('/annonces/{annonce}', [AnnonceController::class, 'show'])->name('annonces.show');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -25,12 +24,17 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::resource('categories', CategoryController::class);
+
+    // Annonces routes - create/edit must come before the show route
     Route::get('/annonces/create', [AnnonceController::class, 'create'])->name('annonces.create');
     Route::post('/annonces', [AnnonceController::class, 'store'])->name('annonces.store');
     Route::get('/annonces/{annonce}/edit', [AnnonceController::class, 'edit'])->name('annonces.edit');
     Route::patch('/annonces/{annonce}', [AnnonceController::class, 'update'])->name('annonces.update');
     Route::delete('/annonces/{annonce}', [AnnonceController::class, 'destroy'])->name('annonces.destroy');
 });
+
+// Show annonce must come after the authenticated routes
+Route::get('/annonces/{annonce}', [AnnonceController::class, 'show'])->name('annonces.show');
 
 require __DIR__.'/auth.php';
 
