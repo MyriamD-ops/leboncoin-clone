@@ -88,3 +88,21 @@ Route::get('/test-inertia-simple', function () {
 Route::get('/test-react', function () {
     return Inertia::render('Annonces/TestIndex');
 });
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/test-create-debug', function () {
+        try {
+            $categories = \App\Models\Category::all();
+            return [
+                'categories_count' => $categories->count(),
+                'categories' => $categories->toArray(),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ];
+        }
+    });
+});
